@@ -47,14 +47,33 @@ export default function Home() {
             <p className="text-2xl text-white">
               {hello.data ? hello.data.greeting : "Loading tRPC query..."}
             </p>
-            <AuthShowcase />
+            <LoginInPage />
+            <AuthShowcase/>
           </div>
         </div>
       </main>
     </>
   );
 }
-
+function LoginInPage() {
+  return (
+    <>
+      <div className="flex flex-col items-center gap-2">
+         <Link
+              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
+              href="http://localhost:3000/login/login"
+              target="_blank"
+            >
+              <h3 className="text-2xl font-bold">Login page →</h3>
+              <div className="text-lg">
+                Learn more about Create T3 App, the libraries it uses, and how
+                to deploy it.
+              </div>
+            </Link>
+      </div>
+    </>
+  );
+}
 function AuthShowcase() {
   const { data: sessionData, isPending } = authClient.useSession();
 
