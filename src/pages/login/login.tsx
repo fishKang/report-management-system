@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
-import { authClient } from "~/server/better-auth/client";
+import { api } from "~/utils/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,13 +11,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const registerMutation = api.user.register.useMutation();
+  const loginMutation = api.user.login.useMutation();
+
   const handleRegister = async () => {
+    if (!username || !password) {
+      setMessage("用户名和密码不能为空");
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
     try {
-      // emailAndPassword is enabled in server config; use username as email
-      // @ts-ignore - client typings may vary depending on package version
-      await authClient.signUp.emailAndPassword({ email: username, password, name: username });
+      // 使用用户名作为邮箱，或者可以添加单独的邮箱字段
+      await registerMutation.mutateAsync({
+        username: username,
+        email: username.includes("@") ? username : `${username}@example.com`,
+        password: password,
+      });
       setMessage("注册成功，请尝试登录。");
     } catch (err: any) {
       setMessage(err?.message ?? "注册失败");
@@ -27,12 +38,22 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
+    if (!username || !password) {
+      setMessage("用户名和密码不能为空");
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
     try {
-      // @ts-ignore
-      await authClient.signIn.emailAndPassword({ email: username, password });
+      const result = await loginMutation.mutateAsync({
+        email: username.includes("@") ? username : `${username}@example.com`,
+        password: password,
+      });
+
       setMessage("登录成功，正在跳转...");
+      // 这里可以存储用户会话信息
+      // 在实际应用中，应该使用更好的状态管理或会话管理
       router.push("/dashboard");
     } catch (err: any) {
       setMessage(err?.message ?? "登录失败");
