@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,13 +10,44 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, title }: DashboardLayoutProps) {
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<string>("当前用户");
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  // 获取当前用户信息
+  useEffect(() => {
+    // 在实际应用中，这里应该从session或API获取用户信息
+    // 这里暂时使用模拟数据
+    const fetchUserInfo = async () => {
+      try {
+        // 尝试从localStorage获取用户信息
+        const savedUser = localStorage.getItem("currentUser");
+        const savedEmail = localStorage.getItem("userEmail");
+        
+        if (savedUser && savedEmail) {
+          setCurrentUser(savedUser);
+          setUserEmail(savedEmail);
+        } else {
+          // 如果没有保存的用户信息，使用默认值
+          setCurrentUser("管理员");
+          setUserEmail("admin@example.com");
+        }
+      } catch (error) {
+        console.error("获取用户信息失败:", error);
+        setCurrentUser("当前用户");
+        setUserEmail("");
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const navItems = [
     { href: "/dashboard", label: "概览", icon: "📊" },
     { href: "/dashboard/reports", label: "报表", icon: "📈" },
-    { href: "/dashboard/settings", label: "设置", icon: "⚙️" },
+    { href: "/dashboard/materials", label: "原料明细", icon: "📦" },
     { href: "/dashboard/analytics", label: "分析", icon: "📊" },
     { href: "/dashboard/users", label: "用户管理", icon: "👥" },
+    { href: "/dashboard/settings", label: "设置", icon: "⚙️" },
   ];
 
   const handleLogout = () => {
@@ -70,11 +102,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
         <div className="absolute bottom-0 w-64 p-4 border-t bg-white">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-              U
+              {currentUser.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium">当前用户</div>
-              <div className="text-xs text-gray-500">管理员</div>
+              <div className="text-sm font-medium">{currentUser}</div>
+              <div className="text-xs text-gray-500 truncate">{userEmail || "未登录"}</div>
             </div>
           </div>
         </div>
@@ -90,6 +122,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
           </div>
           
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg">
+              <span className="text-sm">👤</span>
+              <span className="text-sm font-medium">{currentUser}</span>
+            </div>
+            
             <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
               <span className="text-lg">🔔</span>
             </button>

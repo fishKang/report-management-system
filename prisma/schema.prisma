@@ -87,3 +87,32 @@ model Verification {
 
   @@map("verification")
 }
+
+model MaterialsInfo {
+  id               String   @id @default(cuid())
+  serialNumber     String   @unique
+  materialName     String
+  totalQuantity    Float
+  lastTotalQuantity Float
+  totalPrice       Float    @default(0)
+  lastTotalPrice   Float    @default(0)
+  createdAt        DateTime @default(now())
+  lastModifiedDate DateTime @default(now())
+  lastModifiedTime DateTime @default(now())
+  lastOperator     String
+
+  @@map("materials_info")
+}
+
+model MaterialsDetail {
+  id           String   @id @default(cuid())
+  serialNumber String
+  materialName String
+  quantity     Float
+  price        Float
+  createdAt    DateTime @default(now())
+  createTime   DateTime @default(now())
+  operator     String
+
+  @@map("materials_detail")
+}
